@@ -6,12 +6,15 @@ use App\Models\Juez;
 use App\Models\Socio;
 use App\Models\Canal;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class JuezController extends Controller
 {
     public function index()
     {
-        $jueces = Juez::with(['socio', 'canal'])->get();
+        // Si quieres mostrar solo activos: ->where('estado', 'activo')
+        $jueces = Juez::with(['socio', 'canal', 'creador', 'editor'])->get();
+
         return view('jueces.index', compact('jueces'));
     }
 
@@ -26,12 +29,22 @@ class JuezController extends Controller
     {
         $request->validate([
             'socio_id' => 'required|exists:socios,id',
-            'canal_id' => 'required|exists:canales,id',
+            'canales' => 'array',
+            'canales.*' => 'exists:canals,id',
             'gestion' => 'required|string|max:20',
-            'descripcion' => 'nullable|string'
+            'descripcion' => 'nullable|string',
         ]);
 
-        Juez::create($request->all());
+        Juez::create([
+            'socio_id' => $request->socio_id,
+            'canal_id' => $request->canal_id,
+            'gestion' => $request->gestion,
+            'descripcion' => $request->descripcion,
+            'estado' => 'activo',
+            'created_by' => Auth::id(),
+            'updated_by' => Auth::id(),
+        ]);
+
         return redirect()->route('jueces.index')->with('success', 'Juez registrado correctamente.');
     }
 
@@ -46,23 +59,36 @@ class JuezController extends Controller
     {
         $request->validate([
             'socio_id' => 'required|exists:socios,id',
-            'canal_id' => 'required|exists:canales,id',
+            'canales' => 'array',
+            'canales.*' => 'exists:canals,id',
             'gestion' => 'required|string|max:20',
-            'descripcion' => 'nullable|string'
+            'descripcion' => 'nullable|string',
         ]);
 
-        $juez->update($request->all());
+        $juez->update([
+            'socio_id' => $request->socio_id,
+            'canal_id' => $request->canal_id,
+            'gestion' => $request->gestion,
+            'descripcion' => $request->descripcion,
+            'updated_by' => Auth::id(),
+        ]);
+
         return redirect()->route('jueces.index')->with('success', 'Juez actualizado.');
     }
 
     public function destroy(Juez $juez)
     {
-        $juez->delete();
-        return redirect()->route('jueces.index')->with('success', 'Juez eliminado.');
+        $juez->update([
+            'estado' => 'inactivo',
+            'updated_by' => Auth::id(),
+        ]);
+
+        return redirect()->route('jueces.index')->with('success', 'Juez inhabilitado correctamente.');
     }
 
     public function show(Juez $juez)
     {
+        $juez->load(['socio', 'canal', 'creador', 'editor']);
         return view('jueces.show', compact('juez'));
     }
 }

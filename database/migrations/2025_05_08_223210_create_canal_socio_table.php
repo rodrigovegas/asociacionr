@@ -12,7 +12,7 @@ return new class extends Migration
         Schema::create('canal_socio', function (Blueprint $table) {
             $table->id();
             $table->foreignId('socio_id')->constrained('socios')->onDelete('cascade');
-            $table->foreignId('canal_id')->constrained('canales')->onDelete('cascade');
+            $table->foreignId('canal_id')->constrained('canals')->onDelete('cascade');
             $table->timestamps();
         });
     }

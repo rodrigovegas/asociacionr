@@ -5,12 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Canal;
 use App\Models\Comunidad;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CanalController extends Controller
 {
     public function index()
     {
-        $canales = Canal::with('comunidad')->get();
+        $canales = Canal::with(['comunidad', 'creador', 'editor'])
+            //->where('estado', 'activo')
+            ->get();
+
         return view('canales.index', compact('canales'));
     }
 
@@ -24,16 +28,16 @@ class CanalController extends Controller
     {
         $request->validate([
             'nombre' => 'required|string|max:255',
-            'comunidad_id' => 'required|exists:comunidades,id',
+            'comunidad_id' => 'nullable|exists:comunidades,id',
+            'descripcion' => 'nullable|string',
         ]);
 
-        Canal::create($request->all());
-        return redirect()->route('canales.index')->with('success', 'Canal creado correctamente.');
-    }
+        $canal = new Canal($request->all());
+        $canal->created_by = Auth::id();
+        $canal->estado = 'activo'; // por si acaso
+        $canal->save();
 
-    public function show(Canal $canal)
-    {
-        return view('canales.show', compact('canal'));
+        return redirect()->route('canales.index')->with('success', 'Canal creado correctamente.');
     }
 
     public function edit(Canal $canal)
@@ -46,16 +50,24 @@ class CanalController extends Controller
     {
         $request->validate([
             'nombre' => 'required|string|max:255',
-            'comunidad_id' => 'required|exists:comunidades,id',
+            'comunidad_id' => 'nullable|exists:comunidades,id',
+            'descripcion' => 'nullable|string',
         ]);
 
-        $canal->update($request->all());
-        return redirect()->route('canales.index')->with('success', 'Canal actualizado.');
+        $canal->fill($request->all());
+        $canal->updated_by = Auth::id();
+        $canal->save();
+
+        return redirect()->route('canales.index')->with('success', 'Canal actualizado correctamente.');
     }
 
     public function destroy(Canal $canal)
     {
-        $canal->delete();
-        return redirect()->route('canales.index')->with('success', 'Canal eliminado.');
+        $canal->estado = 'inactivo';
+        $canal->updated_by = Auth::id();
+        $canal->save();
+
+        return redirect()->route('canales.index')->with('success', 'Canal deshabilitado correctamente.');
     }
+    
 }

@@ -11,7 +11,7 @@ return new class extends Migration {
             $table->id();
             $table->string('nombre');
             $table->enum('tipo', ['general', 'canal', 'jueces', 'directorio']);
-            $table->foreignId('canal_id')->nullable()->constrained('canales')->onDelete('set null');
+            $table->foreignId('canal_id')->nullable()->constrained('canals')->onDelete('set null');
             $table->date('fecha');
             $table->decimal('multa_monto', 10, 2)->nullable();
             $table->boolean('multa_tercera_edad')->default(false);

@@ -4,14 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Directorio;
 use App\Models\Socio;
-use App\Models\Comunidad;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DirectorioController extends Controller
 {
     public function index()
     {
-        $registros = Directorio::with(['socio', 'comunidad'])->get();
+        // Muestra todos, si solo querés activos usa: ->where('estado', 'activo')
+        $registros = Directorio::with(['socio', 'comunidad', 'creador', 'editor'])->get();
         return view('directorio.index', compact('registros'));
     }
 
@@ -37,12 +38,15 @@ class DirectorioController extends Controller
 
         Directorio::create([
             'socio_id' => $socio->id,
-            'comunidad_id' => $comunidad?->id, // usa operador seguro
+            'comunidad_id' => $comunidad?->id,
             'cargo' => $request->cargo,
             'gestion' => $request->gestion,
             'periodo_inicio' => $request->periodo_inicio,
             'periodo_fin' => $request->periodo_fin,
             'descripcion' => $request->descripcion,
+            'estado' => 'activo',
+            'created_by' => Auth::id(),
+            'updated_by' => Auth::id(),
         ]);
 
         return redirect()->route('directorio.index')->with('success', 'Registro guardado.');
@@ -76,6 +80,7 @@ class DirectorioController extends Controller
             'periodo_inicio' => $request->periodo_inicio,
             'periodo_fin' => $request->periodo_fin,
             'descripcion' => $request->descripcion,
+            'updated_by' => Auth::id(),
         ]);
 
         return redirect()->route('directorio.index')->with('success', 'Registro actualizado.');
@@ -83,12 +88,17 @@ class DirectorioController extends Controller
 
     public function destroy(Directorio $directorio)
     {
-        $directorio->delete();
-        return redirect()->route('directorio.index')->with('success', 'Registro eliminado.');
+        $directorio->update([
+            'estado' => 'inactivo',
+            'updated_by' => Auth::id(),
+        ]);
+
+        return redirect()->route('directorio.index')->with('success', 'Registro inhabilitado correctamente.');
     }
 
     public function show(Directorio $directorio)
     {
+        $directorio->load(['socio', 'comunidad', 'creador', 'editor']);
         return view('directorio.show', compact('directorio'));
     }
 }

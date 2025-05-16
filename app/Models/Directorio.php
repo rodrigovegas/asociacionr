@@ -9,7 +9,7 @@ class Directorio extends Model
 {
     use HasFactory;
 
-    protected $table = 'directorio'; // 👈 importante, porque no es plural en inglés
+    protected $table = 'directorio';
 
     protected $fillable = [
         'socio_id',
@@ -19,6 +19,9 @@ class Directorio extends Model
         'periodo_inicio',
         'periodo_fin',
         'descripcion',
+        'estado',
+        'created_by',
+        'updated_by',
     ];
 
     public function socio()
@@ -29,5 +32,15 @@ class Directorio extends Model
     public function comunidad()
     {
         return $this->belongsTo(Comunidad::class);
+    }
+
+    public function creador()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function editor()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }

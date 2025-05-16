@@ -9,7 +9,6 @@
 @section('content')
     <div class="card">
         <div class="card-body">
-            <p><strong>ID:</strong> {{ $canal->id }}</p>
             <p><strong>Nombre:</strong> {{ $canal->nombre }}</p>
             <p><strong>Comunidad:</strong> {{ $canal->comunidad->nombre }}</p>
             <a href="{{ route('canales.index') }}" class="btn btn-secondary">Volver</a>

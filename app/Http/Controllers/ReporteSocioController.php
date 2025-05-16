@@ -9,17 +9,25 @@ use App\Exports\SociosExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
 
-
-
 class ReporteSocioController extends Controller
 {
     public function index(Request $request)
     {
         $canales = Canal::all();
-        $query = Socio::with('canales');
+
+        $tiposIngreso = Socio::select('tipo_ingreso')
+            ->distinct()
+            ->whereNotNull('tipo_ingreso')
+            ->pluck('tipo_ingreso');
+
+        $query = Socio::with(['canales', 'creador', 'editor']);
 
         if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
+        }
+
+        if ($request->filled('tipo_ingreso')) {
+            $query->where('tipo_ingreso', $request->tipo_ingreso);
         }
 
         if ($request->filled('fecha_desde')) {
@@ -46,8 +54,7 @@ class ReporteSocioController extends Controller
 
         $socios = $query->get();
 
-        // ✅ Vista principal actualizada
-        return view('socios.reportes.index', compact('socios', 'canales', 'request'));
+        return view('socios.reportes.index', compact('socios', 'canales', 'tiposIngreso', 'request'));
     }
 
     public function exportExcel(Request $request)
@@ -57,10 +64,14 @@ class ReporteSocioController extends Controller
 
     public function exportPDF(Request $request)
     {
-        $query = Socio::with('canales');
+        $query = Socio::with(['canales', 'creador', 'editor']);
 
         if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
+        }
+
+        if ($request->filled('tipo_ingreso')) {
+            $query->where('tipo_ingreso', $request->tipo_ingreso);
         }
 
         if ($request->filled('fecha_desde')) {
@@ -87,7 +98,9 @@ class ReporteSocioController extends Controller
 
         $socios = $query->get();
 
-        $pdf = PDF::loadView('socios.reportes.export_pdf', compact('socios'));
+        $pdf = Pdf::loadView('socios.reportes.export_pdf', compact('socios'))
+            ->setPaper('a4', 'landscape');
+
         return $pdf->download('reporte_socios.pdf');
     }
 }

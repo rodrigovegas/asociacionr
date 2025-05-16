@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Comunidad;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ComunidadController extends Controller
 {
     public function index()
     {
-        $comunidades = Comunidad::all();
+        // Mostramos todas, incluyendo inactivas si querés
+        $comunidades = Comunidad::with(['creador', 'editor'])->get();
+
         return view('comunidades.index', compact('comunidades'));
     }
 
@@ -22,9 +25,21 @@ class ComunidadController extends Controller
     {
         $request->validate([
             'nombre' => 'required|string|max:255',
+            'descripcion' => 'nullable|string',
+            'latitud' => 'nullable|numeric',
+            'longitud' => 'nullable|numeric',
         ]);
 
-        Comunidad::create($request->all());
+        Comunidad::create([
+            'nombre' => $request->nombre,
+            'descripcion' => $request->descripcion,
+            'latitud' => $request->latitud,
+            'longitud' => $request->longitud,
+            'estado' => 'activo',
+            'created_by' => Auth::id(),
+            'updated_by' => Auth::id(),
+        ]);
+
         return redirect()->route('comunidades.index')->with('success', 'Comunidad creada con éxito.');
     }
 
@@ -42,15 +57,30 @@ class ComunidadController extends Controller
     {
         $request->validate([
             'nombre' => 'required|string|max:255',
+            'descripcion' => 'nullable|string',
+            'latitud' => 'nullable|numeric',
+            'longitud' => 'nullable|numeric',
         ]);
 
-        $comunidad->update($request->all());
+        $comunidad->update([
+            'nombre' => $request->nombre,
+            'descripcion' => $request->descripcion,
+            'latitud' => $request->latitud,
+            'longitud' => $request->longitud,
+            'updated_by' => Auth::id(),
+        ]);
+
         return redirect()->route('comunidades.index')->with('success', 'Comunidad actualizada con éxito.');
     }
 
     public function destroy(Comunidad $comunidad)
     {
-        $comunidad->delete();
-        return redirect()->route('comunidades.index')->with('success', 'Comunidad eliminada.');
+        // Eliminación lógica
+        $comunidad->update([
+            'estado' => 'inactivo',
+            'updated_by' => Auth::id(),
+        ]);
+
+        return redirect()->route('comunidades.index')->with('success', 'Comunidad inhabilitada correctamente.');
     }
 }

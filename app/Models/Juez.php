@@ -9,9 +9,17 @@ class Juez extends Model
 {
     use HasFactory;
 
-    protected $table = 'jueces'; 
+    protected $table = 'jueces';
 
-    protected $fillable = ['socio_id', 'canal_id', 'gestion', 'descripcion'];
+    protected $fillable = [
+        'socio_id',
+        'canal_id',
+        'gestion',
+        'descripcion',
+        'estado',
+        'created_by',
+        'updated_by',
+    ];
 
     public function socio()
     {
@@ -22,4 +30,15 @@ class Juez extends Model
     {
         return $this->belongsTo(Canal::class);
     }
+
+    public function creador()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function editor()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
 }
+

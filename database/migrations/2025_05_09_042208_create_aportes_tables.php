@@ -11,7 +11,7 @@ return new class extends Migration {
             $table->id();
             $table->string('nombre');
             $table->enum('tipo_aporte', ['general', 'canal', 'jueces', 'directorio']);
-            $table->foreignId('canal_id')->nullable()->constrained('canales')->onDelete('set null');
+            $table->foreignId('canal_id')->nullable()->constrained('canals')->onDelete('set null');
             $table->decimal('monto_por_hectarea', 10, 2);
             $table->boolean('usar_superficie_riego')->default(true);
             $table->text('descripcion')->nullable();

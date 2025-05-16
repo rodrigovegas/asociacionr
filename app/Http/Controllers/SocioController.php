@@ -38,7 +38,8 @@ class SocioController extends Controller
             'sistema' => 'nullable|string|max:50',
             'superficie_total' => 'nullable|numeric',
             'superficie_riego' => 'nullable|numeric',
-            'canales' => 'array|exists:canales,id',
+            'canales' => 'array',
+            'canales.*' => 'exists:canals,id',
             'codigo_socio' => 'required|string|unique:socios,codigo_socio',
             'fecha_ingreso' => 'required|date',
             'numero_turnos' => 'required|integer|min:0',
@@ -86,7 +87,8 @@ class SocioController extends Controller
             'sistema' => 'nullable|string|max:50',
             'superficie_total' => 'nullable|numeric',
             'superficie_riego' => 'nullable|numeric',
-            'canales' => 'array|exists:canales,id'
+            'canales' => 'array',
+            'canales.*' => 'exists:canals,id',
         ]);
 
         $edad = Carbon::parse($request->fecha_nacimiento)->age;

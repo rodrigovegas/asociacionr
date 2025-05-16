@@ -73,7 +73,7 @@
                         <th>Monto</th>
                         <th>Estado</th>
                         <th>Pago</th>
-                        <th>Obs.</th>
+                        <th>Observaciones</th>
                     </tr>
                 </thead>
                 <tbody>
