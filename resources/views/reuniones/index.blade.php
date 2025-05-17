@@ -19,21 +19,24 @@
             <table id="tabla-reuniones" class="table table-sm table-bordered">
                 <thead>
                     <tr>
+                        <th>Fecha</th>
+                        <th>Hora</th>
                         <th>Nombre</th>
                         <th>Tipo</th>
-                        <th>Fecha</th>
                         <th>Canal</th>
                         <th>Monto Multa</th>
                         <th>Cobra a 3ra Edad</th>
+                        <th>Estado</th> {{-- ✅ nuevo --}}
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($reuniones as $r)
                         <tr>
+                            <td>{{ $r->fecha }}</td>
+                            <td>{{ $r->hora }}</td>
                             <td>{{ $r->nombre }}</td>
                             <td>{{ ucfirst($r->tipo) }}</td>
-                            <td>{{ $r->fecha }}</td>
                             <td>{{ $r->canal->nombre ?? '-' }}</td>
                             <td>{{ $r->multa_monto ? number_format($r->multa_monto, 2) : '-' }} Bs</td>
                             <td>
@@ -44,14 +47,28 @@
                                 @endif
                             </td>
                             <td>
+                                @if ($r->deleted_at)
+                                    <span class="badge bg-secondary">Inhabilitada</span>
+                                @else
+                                    <span class="badge bg-success">Activa</span>
+                                @endif
+                            </td>
+                            <td>
                                 <a href="{{ route('reuniones.edit', $r) }}" class="btn btn-primary btn-sm">Asistencia</a>
                                 <a href="{{ route('reuniones.show', $r) }}" class="btn btn-info btn-sm">Ver</a>
-                                <form action="{{ route('reuniones.destroy', $r) }}" method="POST"
-                                    style="display:inline-block;">
-                                    @csrf @method('DELETE')
-                                    <button class="btn btn-danger btn-sm"
-                                        onclick="return confirm('¿Eliminar reunión?')">Eliminar</button>
-                                </form>
+                                @if (is_null($r->deleted_at))
+                                    <form action="{{ route('reuniones.destroy', $r) }}" method="POST"
+                                        style="display:inline-block;">
+                                        @csrf @method('DELETE')
+                                        <button class="btn btn-warning btn-sm"
+                                            onclick="return confirm('¿Inhabilitar esta reunión?')">
+                                            Inhabilitar
+                                        </button>
+                                    </form>
+                                @else
+                                    <button class="btn btn-secondary btn-sm" disabled>Inhabilitada</button>
+                                @endif
+
                             </td>
                         </tr>
                     @endforeach
@@ -61,20 +78,19 @@
     </div>
 @endsection
 
-@section('js')
-    {{-- jQuery y DataTables --}}
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+@section('css')
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+@endsection
 
+@section('js')
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#tabla-reuniones').DataTable({
-                pageLength: 10,
-                ordering: true,
                 responsive: true,
                 language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
                 }
             });
         });

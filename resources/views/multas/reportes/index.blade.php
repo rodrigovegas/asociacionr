@@ -79,7 +79,8 @@
                 <tbody>
                     @foreach ($multas as $multa)
                         <tr>
-                            <td>{{ $multa->socio->nombres }} {{ $multa->socio->apellidos }}</td>
+                            <td>{{ $multa->socio->apellidos }} {{ $multa->socio->nombres }}</td>
+
                             <td>{{ $multa->reunion->nombre }}</td>
                             <td>{{ ucfirst($multa->reunion->tipo) }}</td>
                             <td>

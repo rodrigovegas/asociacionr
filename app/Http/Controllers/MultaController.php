@@ -6,6 +6,8 @@ use App\Models\Multa;
 use App\Models\Canal;
 use App\Models\Reunion;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
+
 
 class MultaController extends Controller
 {
@@ -52,5 +54,15 @@ class MultaController extends Controller
         ]);
 
         return redirect()->route('multas.index')->with('success', 'Multa actualizada.');
+    }
+    public function comprobante(Multa $multa)
+    {
+        return view('multas.comprobante', compact('multa'));
+    }
+
+    public function comprobantePdf(Multa $multa)
+    {
+        $pdf = Pdf::loadView('multas.comprobante_pdf', compact('multa'));
+        return $pdf->download('comprobante-multa.pdf');
     }
 }

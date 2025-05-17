@@ -72,7 +72,7 @@
                 <tbody>
                     @foreach ($multas as $multa)
                         <tr>
-                            <td>{{ $multa->socio->nombres }} {{ $multa->socio->apellidos }}</td>
+                            <td>{{ $multa->socio->apellidos }} {{ $multa->socio->nombres }}</td>
                             <td>
                                 @foreach ($multa->socio->canales as $canal)
                                     <span class="badge bg-info">{{ $canal->nombre }}</span>
@@ -90,7 +90,12 @@
                             </td>
                             <td>{{ $multa->fecha_pago ?? '-' }}</td>
                             <td>
-                                <a href="{{ route('multas.edit', $multa) }}" class="btn btn-sm btn-primary">Editar</a>
+                                @if ($multa->pagado)
+                                    <a href="{{ route('multas.comprobante', $multa) }}"
+                                        class="btn btn-success btn-sm">Ver</a>
+                                @endif
+
+                                <a href="{{ route('multas.edit', $multa) }}" class="btn btn-primary btn-sm">Editar</a>
                             </td>
                         </tr>
                     @endforeach
@@ -100,20 +105,19 @@
     </div>
 @endsection
 
-@section('js')
-    {{-- jQuery y DataTables --}}
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+@section('css')
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+@endsection
 
+@section('js')
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#tabla-multas').DataTable({
-                pageLength: 10,
-                ordering: true,
                 responsive: true,
                 language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
                 }
             });
         });

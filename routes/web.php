@@ -63,6 +63,9 @@ Route::middleware('auth')->group(function () {
         'edit',
         'update'
     ]);
+    Route::get('multas/{multa}/comprobante', [MultaController::class, 'comprobante'])->name('multas.comprobante');
+    Route::get('multas/{multa}/comprobante/pdf', [MultaController::class, 'comprobantePdf'])->name('multas.comprobante.pdf');
+
 
     Route::get('multas/reportes', [MultaReporteController::class, 'index'])->name('multas.reportes.index');
     Route::get('multas/reportes/excel', [MultaReporteController::class, 'exportExcel'])->name('multas.reportes.excel');

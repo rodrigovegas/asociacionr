@@ -10,13 +10,15 @@ use App\Models\Canal;
 use App\Models\Juez;
 use App\Models\Directorio;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class ReunionController extends Controller
 {
     public function index()
     {
-        $reuniones = Reunion::with('canal')->orderByDesc('fecha')->get();
+        $reuniones = Reunion::with('canal')->withTrashed()->orderByDesc('fecha')->get();
+
         return view('reuniones.index', compact('reuniones'));
     }
 
@@ -29,23 +31,27 @@ class ReunionController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nombre' => 'required|string|max:255',
+            'nombre' => 'nullable|string|max:255',
             'tipo' => 'required|in:general,canal,jueces,directorio',
-            'fecha' => 'required|date',
             'canal_id' => 'nullable|exists:canales,id',
+            'fecha' => 'required|date',
+            'hora' => 'nullable|date_format:H:i',
             'descripcion' => 'nullable|string',
             'multa_monto' => 'nullable|numeric|min:0',
-            'multa_tercera_edad' => 'nullable|boolean'
+            'multa_tercera_edad' => 'nullable|boolean',
         ]);
 
         $reunion = Reunion::create([
             'nombre' => $request->nombre,
             'tipo' => $request->tipo,
-            'fecha' => $request->fecha,
             'canal_id' => $request->canal_id,
+            'fecha' => $request->fecha,
+            'hora' => $request->hora,
             'descripcion' => $request->descripcion,
             'multa_monto' => $request->multa_monto,
             'multa_tercera_edad' => $request->boolean('multa_tercera_edad'),
+            'estado' => 'activo',
+            'created_by' => Auth::id(),
         ]);
 
         // Asociar socios según tipo
@@ -99,8 +105,14 @@ class ReunionController extends Controller
                         'observacion' => 'Inasistencia'
                     ]);
                 }
+            } else {
+                Multa::where('reunion_id', $reunion->id)
+                    ->where('socio_id', $socio->id)
+                    ->delete();
             }
         }
+        $reunion->updated_by = Auth::id();
+        $reunion->touch();
 
         return back()->with('success', 'Asistencia y multas actualizadas correctamente.');
     }

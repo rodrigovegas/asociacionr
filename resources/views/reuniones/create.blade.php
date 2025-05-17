@@ -45,6 +45,10 @@
                     <label>Fecha</label>
                     <input type="date" name="fecha" class="form-control" value="{{ old('fecha') }}" required>
                 </div>
+                <div class="form-group mt-2">
+                    <label>Hora</label>
+                    <input type="time" name="hora" class="form-control" value="{{ old('hora') }}">
+                </div>
 
                 <div class="form-group mt-2">
                     <label>Descripción</label>
