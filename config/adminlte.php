@@ -404,6 +404,12 @@ return [
                 ],
             ],
         ],
+        [
+            'text' => 'Aportes Maquinaria',
+            'url' => 'aportes-maquinaria',
+            'icon' => 'fas fa-address-book',
+            'label_color' => 'success',
+        ],
         ['header' => 'account_settings'],
         [
             'text' => 'profile',

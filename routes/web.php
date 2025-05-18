@@ -12,6 +12,7 @@ use App\Http\Controllers\ReunionController;
 use App\Http\Controllers\MultaController;
 use App\Http\Controllers\MultaReporteController;
 use App\Http\Controllers\AporteController;
+use App\Http\Controllers\AporteMaquinariaController;
 use App\Http\Controllers\ReporteSocioController;
 
 Route::get('/', function () {
@@ -78,4 +79,10 @@ Route::middleware('auth')->group(function () {
         'edit',
         'update'
     ]);
+    // Aportes por Maquinaria
+    Route::resource('aportes-maquinaria', App\Http\Controllers\AporteMaquinariaController::class)->parameters([
+        'aportes-maquinaria' => 'aporte'
+    ]);
+    Route::get('aportes-maquinaria/{aporte}/comprobante', [AporteMaquinariaController::class, 'comprobante'])->name('aportes-maquinaria.comprobante');
+    Route::get('aportes-maquinaria/{aporte}/comprobante/pdf', [AporteMaquinariaController::class, 'comprobantePdf'])->name('aportes-maquinaria.comprobante.pdf');
 });
